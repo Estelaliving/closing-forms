@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Home Closing Checklist — Estela Living</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="header">
+  <button class="back" onclick="location.href='index.html'">←</button>
+  <div>
+    <h1>Home Closing Checklist</h1>
+    <div class="subtitle" id="propertySubtitle">Loading…</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <div class="property-title" id="propertyTitle">—</div>
+    <div class="property-sub" id="propertyMeta">—</div>
+  </div>
+
+  <div class="card">
+    <div class="progress-wrap">
+      <span>Completion Progress</span>
+      <span id="progressCount">0 / 7</span>
+    </div>
+    <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Closing Information</h2>
+    <div class="field">
+      <label>Settlement / Closing Date</label>
+      <input type="date" id="f_settlementDate">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Cancellations Required</h2>
+    <div id="cancellationsList"></div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Notes</h2>
+    <div class="field">
+      <textarea id="f_notes" placeholder="Anything the office should know…"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Your Sign-Off</h2>
+    <div class="field">
+      <label>Your Name</label>
+      <select id="f_signerSelect">
+        <option value="">Select your name…</option>
+        <option>Brandon Atchinson</option>
+        <option>Francine Martinez</option>
+        <option>Jamie Fuentes</option>
+        <option>Jason Bedaw</option>
+        <option>Jeffrey Gwinn</option>
+        <option>Jon Frantz</option>
+        <option>Luis Grimaldi</option>
+        <option>Michael Bedaw</option>
+        <option>Shirley Sarmiento</option>
+        <option value="__other__">Other (type name)</option>
+      </select>
+    </div>
+    <div class="field" id="otherNameField" style="display:none;">
+      <label>Name</label>
+      <input type="text" id="f_signerOther" placeholder="Type your name">
+    </div>
+  </div>
+
+  <div class="card" id="lockedBanner" style="display:none; background:#dcfce7; border:1px solid #bbf7d0;">
+    <strong style="color:#15803d;">✓ Signed &amp; completed</strong>
+    <div style="font-size:13px; color:#166534; margin-top:4px;" id="lockedMeta"></div>
+  </div>
+
+  <button class="btn btn-secondary" id="saveProgressBtn" style="margin-bottom:10px;">💾 Save Progress</button>
+  <button class="btn btn-primary" id="submitBtn" style="margin-bottom:10px;">✓ Complete &amp; Sign Off</button>
+  <button class="btn btn-secondary" id="printBtn" style="margin-bottom:10px;">🖨️ Print / Save as PDF</button>
+  <div class="footer-note">You can save progress now — others can complete the remaining items using the same link.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/houses-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="assets/backend.js"></script>
+<script src="assets/closing-checklist.js?v=2"></script>
+</body>
+</html>

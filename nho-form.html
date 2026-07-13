@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>New Home Orientation / Final Acceptance — Estela Living</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="header">
+  <button class="back" onclick="location.href='index.html'">←</button>
+  <div>
+    <h1>New Home Orientation / Final Acceptance</h1>
+    <div class="subtitle" id="propertySubtitle">Loading…</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <div class="property-title" id="propertyTitle">—</div>
+    <div class="property-sub" id="propertyMeta">—</div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Closing Information</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="f_date">
+      </div>
+      <div class="field">
+        <label>Customer Name</label>
+        <input type="text" id="f_customerName">
+      </div>
+    </div>
+    <div class="field">
+      <label>Address</label>
+      <input type="text" id="f_address">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Items Remaining To Be Completed, Adjusted, Installed and/or Repaired</h2>
+    <p class="acknowledge-box" style="margin-bottom:14px;">Prior to Final Acceptance by the customer, an inspection was made of the premises. List anything below that still needs attention — leave blank if none.</p>
+    <div id="punchList"></div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Customer Acknowledgement — New Home Orientation</h2>
+    <div class="acknowledge-box">
+      During the New Home Orientation of our (my) home with the Construction Manager, we (I) have carefully inspected all aspects and acknowledge all the installations and workmanship is to our (my) satisfaction and hereby accept the house as currently presented. This acceptance does not affect our (my) rights to warranty work under the Estela Living Home Warranty program.
+      <br><br>
+      Beyond the Final Acceptance, Estela Living <strong>does not</strong> warrant items for dents, scratches, chips, rips, stains, or any other surface defects and/or broken glass.
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Customer Signature</label>
+        <canvas class="sig-pad" id="sig_customer1"></canvas>
+        <div class="sig-actions">
+          <button type="button" class="sig-clear" data-clear="sig_customer1">Clear</button>
+          <span class="sig-status" id="sig_customer1_status">Not signed</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>NHO Date</label>
+        <input type="date" id="f_nhoDate1">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Co-Buyer Signature (if applicable)</label>
+        <canvas class="sig-pad" id="sig_customer2"></canvas>
+        <div class="sig-actions">
+          <button type="button" class="sig-clear" data-clear="sig_customer2">Clear</button>
+          <span class="sig-status" id="sig_customer2_status">Not signed</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>NHO Date</label>
+        <input type="date" id="f_nhoDate2">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Satisfaction Checklist</h2>
+    <p class="acknowledge-box" style="margin-bottom:14px;">We (I) have inspected the following items and they meet our (my) satisfaction:</p>
+    <div id="satisfactionList"></div>
+    <div class="initial-inline">
+      <input type="text" id="f_initial1" maxlength="4" placeholder="Init.">
+      <span>Initial</span>
+      <input type="text" id="f_initial2" maxlength="4" placeholder="Init.">
+      <span>Initial</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Landscaping Acknowledgement</h2>
+    <div class="acknowledge-box">
+      <strong>**We (I) understand there is no warranty or guarantee on the lawn, plants, trees, fencing or yard drainage.</strong> The care, maintenance and watering of the landscaping and/or fence are our (my) responsibility.
+    </div>
+    <div class="initial-inline">
+      <input type="text" id="f_landInitial1" maxlength="4" placeholder="Init.">
+      <span>Initial</span>
+      <input type="text" id="f_landInitial2" maxlength="4" placeholder="Init.">
+      <span>Initial</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Final Acceptance</h2>
+    <div class="acknowledge-box">
+      We (I) have completed the New Home Orientation with the Construction Manager and find the home satisfactory and acceptable. We (I) have also been instructed in the use, care and maintenance of the home and understand the warranty service program as set forth in the Estela Living Warranty Agreement and Homeowner's Maintenance Manual.
+      <br><br>
+      We (I) further acknowledge <strong>NO VERBAL AGREEMENTS</strong> or commitments regarding this acceptance have been made.
+    </div>
+
+    <div class="field">
+      <label>Construction Manager Name</label>
+      <input type="text" id="f_cmName" placeholder="Construction Manager name">
+    </div>
+    <div class="field">
+      <label>Construction Manager Signature</label>
+      <canvas class="sig-pad" id="sig_cm"></canvas>
+      <div class="sig-actions">
+        <button type="button" class="sig-clear" data-clear="sig_cm">Clear</button>
+        <span class="sig-status" id="sig_cm_status">Not signed</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Customer Final Acceptance Signature</label>
+      <canvas class="sig-pad" id="sig_customerFinal"></canvas>
+      <div class="sig-actions">
+        <button type="button" class="sig-clear" data-clear="sig_customerFinal">Clear</button>
+        <span class="sig-status" id="sig_customerFinal_status">Not signed</span>
+      </div>
+      <div class="sig-caption">By signing, the customer accepts the home as currently presented, per the acknowledgements above.</div>
+    </div>
+  </div>
+
+  <div class="card" id="lockedBanner" style="display:none; background:#dcfce7; border:1px solid #bbf7d0;">
+    <strong style="color:#15803d;">✓ Signed &amp; completed</strong>
+    <div style="font-size:13px; color:#166534; margin-top:4px;" id="lockedMeta"></div>
+  </div>
+
+  <button class="btn btn-secondary" id="saveProgressBtn" style="margin-bottom:10px;">💾 Save Progress</button>
+  <button class="btn btn-primary" id="submitBtn">✓ Submit &amp; Sign</button>
+  <div class="footer-note">Progress saves automatically to this address's record. Submitting locks the form as fully executed.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/houses-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="assets/backend.js"></script>
+<script src="assets/signature-pad.js"></script>
+<script src="assets/nho-form.js"></script>
+</body>
+</html>
