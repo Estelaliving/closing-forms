@@ -245,6 +245,34 @@ a { color: var(--accent); text-decoration: none; }
   margin-bottom: 4px;
 }
 
+.filter-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 10px 4px 2px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.filter-panel {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--slate-100);
+}
+
+.results-count {
+  font-size: 12.5px;
+  color: var(--slate-500);
+  font-weight: 600;
+  margin: 4px 4px 10px 4px;
+}
+
 .date-group-label {
   font-size: 12px;
   font-weight: 700;
