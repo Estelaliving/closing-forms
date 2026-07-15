@@ -5,10 +5,12 @@ const developmentNames = {
   SR: "Sabana Reserve",
   MO: "Marion Oaks",
   JF: "Juliette Falls",
-  OW: "Ocala Waterways"
+  OW: "Ocala Waterways",
+  TEST: "⚠️ TEST / TRAINING — not a real home"
 };
 
 const houses = [
+  { id: "TEST0001", settDate: "2099-01-01", company: "000", dev: "TEST", houseNumber: "TEST0001", model: "TEST", elevCode: "TEST", address: "0 TEST HOME — Practice Only, Do Not Use For A Real Closing", buyer: "Test, Buyer", pm: "TEST" },
   { id: "00600470", settDate: "2026-11-30", company: "001", dev: "SB", houseNumber: "00600470", model: "M53", elevCode: "FAR", address: "12 Patriot Ct", buyer: "Moore, Jessica", pm: "JFRANTZ" },
   { id: "00400240", settDate: "2026-10-09", company: "003", dev: "PC", houseNumber: "00400240", model: "EXX", elevCode: "A2", address: "47 Louisiana Dr", buyer: "Hetue, Teresa", pm: "JFRANTZ" },
   { id: "00400231", settDate: "2026-10-01", company: "009", dev: "PC", houseNumber: "00400231", model: "HX3", elevCode: "A2", address: "56 Barkley Ln", buyer: "Gohrend, Andronik", pm: "JFRANTZ" },
