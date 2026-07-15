@@ -125,9 +125,19 @@ document.getElementById("saveProgressBtn").addEventListener("click", async () =>
   await window.ClosingFormsBackend.saveSubmission(houseId, "nho", {
     data: collectData(),
     signatures: collectSignatures(),
-    status: "in_progress"
+    status: "in_progress",
+    submittedBy: document.getElementById("f_cmName").value || null
   });
   showToast("Progress saved");
+});
+
+document.getElementById("printBtn").addEventListener("click", async () => {
+  await window.ClosingFormsBackend.logPrint(houseId, "nho", {
+    data: collectData(),
+    signatures: collectSignatures(),
+    performedBy: document.getElementById("f_cmName").value || null
+  });
+  window.print();
 });
 
 document.getElementById("submitBtn").addEventListener("click", async () => {

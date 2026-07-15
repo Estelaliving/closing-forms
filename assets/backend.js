@@ -24,6 +24,21 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // create policy "public read" on form_submissions for select using (true);
 // create policy "public write" on form_submissions for insert with check (true);
 // create policy "public update" on form_submissions for update using (true);
+//
+// create table form_activity_log (
+//   id uuid primary key default gen_random_uuid(),
+//   house_id text not null,
+//   form_type text not null check (form_type in ('nho', 'closing_checklist')),
+//   action text not null check (action in ('save', 'submit', 'print')),
+//   data jsonb not null default '{}'::jsonb,
+//   signatures jsonb not null default '{}'::jsonb,
+//   performed_by text,
+//   created_at timestamptz not null default now()
+// );
+// alter table form_activity_log enable row level security;
+// create policy "public read" on form_activity_log for select using (true);
+// create policy "public write" on form_activity_log for insert with check (true);
+// -- No update/delete policy on purpose: this is an append-only audit trail.
 
 const isConfigured = !SUPABASE_URL.startsWith("REPLACE_") && !SUPABASE_ANON_KEY.startsWith("REPLACE_");
 
@@ -83,12 +98,65 @@ async function saveSubmission(houseId, formType, { data, signatures, status, sub
       .from("form_submissions")
       .upsert(record, { onConflict: "house_id,form_type" });
     if (error) { console.error(error); throw error; }
-    return record;
+  } else {
+    const all = localAll();
+    all[submissionKey(houseId, formType)] = record;
+    localSave(all);
   }
-  const all = localAll();
-  all[submissionKey(houseId, formType)] = record;
-  localSave(all);
+  await logActivity(houseId, formType, status === "completed" ? "submit" : "save", { data, signatures, performedBy: submittedBy });
   return record;
+}
+
+// Append-only audit trail: every Save Progress, Submit & Sign, and Print action
+// writes a new row here instead of overwriting anything. Nothing in this app
+// ever updates or deletes a log entry.
+const LOCAL_LOG_KEY = "estela_closing_forms_log_v1";
+function localLogAll() {
+  try { return JSON.parse(localStorage.getItem(LOCAL_LOG_KEY) || "[]"); } catch (e) { return []; }
+}
+function localLogSave(entries) {
+  localStorage.setItem(LOCAL_LOG_KEY, JSON.stringify(entries));
+}
+
+async function logActivity(houseId, formType, action, { data, signatures, performedBy } = {}) {
+  const entry = {
+    house_id: houseId,
+    form_type: formType,
+    action, // 'save' | 'submit' | 'print'
+    data: data || {},
+    signatures: signatures || {},
+    performed_by: performedBy || null,
+    created_at: new Date().toISOString()
+  };
+  const sb = getClient();
+  if (sb) {
+    const { error } = await sb.from("form_activity_log").insert(entry);
+    if (error) console.error(error);
+    return entry;
+  }
+  const entries = localLogAll();
+  entries.push(entry);
+  localLogSave(entries);
+  return entry;
+}
+
+async function logPrint(houseId, formType, { data, signatures, performedBy } = {}) {
+  return logActivity(houseId, formType, "print", { data, signatures, performedBy });
+}
+
+async function getActivityLog(houseId, formType) {
+  const sb = getClient();
+  if (sb) {
+    const { data, error } = await sb
+      .from("form_activity_log")
+      .select("*")
+      .eq("house_id", houseId)
+      .eq("form_type", formType)
+      .order("created_at", { ascending: true });
+    if (error) { console.error(error); return []; }
+    return data || [];
+  }
+  return localLogAll().filter(e => e.house_id === houseId && e.form_type === formType);
 }
 
 // Returns { nho: 'not_started'|'in_progress'|'completed', closing_checklist: ... } for a house.
@@ -117,5 +185,7 @@ window.ClosingFormsBackend = {
   isConfigured,
   getSubmission,
   saveSubmission,
-  getHouseFormStatuses
+  getHouseFormStatuses,
+  logPrint,
+  getActivityLog
 };

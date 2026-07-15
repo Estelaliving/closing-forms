@@ -101,7 +101,8 @@ function showToast(msg) {
 document.getElementById("saveProgressBtn").addEventListener("click", async () => {
   await window.ClosingFormsBackend.saveSubmission(houseId, "closing_checklist", {
     data: collectData(),
-    status: "in_progress"
+    status: "in_progress",
+    submittedBy: signerName() || null
   });
   showToast("Progress saved");
 });
@@ -123,4 +124,10 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   showToast("Signed off ✓");
 });
 
-document.getElementById("printBtn").addEventListener("click", () => window.print());
+document.getElementById("printBtn").addEventListener("click", async () => {
+  await window.ClosingFormsBackend.logPrint(houseId, "closing_checklist", {
+    data: collectData(),
+    performedBy: signerName() || null
+  });
+  window.print();
+});
