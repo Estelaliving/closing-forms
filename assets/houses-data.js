@@ -10,6 +10,7 @@
   };
   const houses = [
     { id: "TEST0001", settDate: "2099-01-01", company: "000", dev: "TEST", houseNumber: "TEST0001", model: "TEST", elevCode: "TEST", address: "0 TEST HOME — Practice Only, Do Not Use For A Real Closing", buyer: "Test, Buyer", pm: "TEST" },
+    { id: "MANUAL-8703SW135THPL", settDate: "", company: "", dev: "MO", houseNumber: "MANUAL-8703SW135THPL", model: "", elevCode: "", address: "8703 SW 135th Pl", buyer: "TBD — confirm buyer", pm: "JBEDAW" },
     { id: "00600470", settDate: "2026-11-30", company: "001", dev: "SB", houseNumber: "00600470", model: "M53", elevCode: "FAR", address: "12 Patriot Ct", buyer: "Moore, Jessica", pm: "JFRANTZ" },
     { id: "00300236", settDate: "2026-11-19", company: "009", dev: "OW", houseNumber: "00300236", model: "HX3", elevCode: "A2", address: "4860 SW 110th St", buyer: "Fernandez Padial, Stephanie", pm: "MBEDAW" },
     { id: "00300247", settDate: "2026-11-06", company: "002", dev: "OW", houseNumber: "00300247", model: "HX2", elevCode: "A2", address: "10074 SW 41st Ave", buyer: "Barrero Rodriguez, Ramiro", pm: "MBEDAW" },
