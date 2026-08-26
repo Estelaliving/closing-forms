@@ -113,6 +113,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     showToast("Select or type your name to sign off");
     return;
   }
+  const doneCount = CANCELLATIONS.reduce((n, _, idx) => n + (document.getElementById("f_cxl" + idx).checked ? 1 : 0), 0);
+  if (doneCount < CANCELLATIONS.length) {
+    showToast(`All ${CANCELLATIONS.length} items must be checked before signing off (${doneCount} / ${CANCELLATIONS.length} done)`);
+    return;
+  }
   await window.ClosingFormsBackend.saveSubmission(houseId, "closing_checklist", {
     data: collectData(),
     status: "completed",
