@@ -10,6 +10,7 @@
   };
   const houses = [
     { id: "TEST0001", settDate: "2099-01-01", company: "000", dev: "TEST", houseNumber: "TEST0001", model: "TEST", elevCode: "TEST", address: "0 TEST HOME — Practice Only, Do Not Use For A Real Closing", buyer: "Test, Buyer", pm: "TEST" },
+    { id: "MANUAL-8703SW135THPL", settDate: "", company: "", dev: "MO", houseNumber: "MANUAL-8703SW135THPL", model: "", elevCode: "", address: "8703 SW 135th Pl", buyer: "TBD — confirm buyer", pm: "JBEDAW" },
     { id: "00400253", settDate: "2026-12-21", company: "004", dev: "PC", houseNumber: "00400253", model: "EXX", elevCode: "A2", address: "6 Uturn Ct", buyer: "CATALANO, LISA", pm: "BATCHINSON" },
     { id: "00600461", settDate: "2026-12-18", company: "001", dev: "SB", houseNumber: "00600461", model: "M43", elevCode: "FAR", address: "104 Springwood Dr", buyer: "Stroup, Jamie", pm: "JFRANTZ" },
     { id: "00600470", settDate: "2026-11-30", company: "001", dev: "SB", houseNumber: "00600470", model: "M53", elevCode: "FAR", address: "12 Patriot Ct", buyer: "Moore, Jessica", pm: "JFRANTZ" },
