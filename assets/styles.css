@@ -313,6 +313,9 @@ a { color: var(--accent); text-decoration: none; }
 .house-row .forms-row a.is-progress { background: var(--amber-100); border-color: transparent; color: var(--amber-800); }
 .house-row .forms-row a.is-done { background: var(--green-100); border-color: transparent; color: var(--green-700); }
 
+.house-row .turnaround { margin-top: 8px; }
+.pill-overdue { background: var(--red-100); color: var(--red-700); }
+
 .empty-state {
   text-align: center;
   color: var(--slate-500);

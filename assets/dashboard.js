@@ -1,5 +1,12 @@
 const { houses, developmentNames } = window.HousesData;
 
+// house_id -> {house_id, status, completed_at, updated_at}, one map per form
+// type. Loaded once at page load (see loadStatusMaps) so filtering/sorting
+// and the status pills all read from the same snapshot instead of firing
+// one request per house per render.
+let nhoStatusMap = new Map();
+let checklistStatusMap = new Map();
+
 function fmtDate(iso) {
   if (!iso) return "No date set";
   const d = new Date(iso + "T00:00:00");
@@ -15,6 +22,19 @@ function statusLabel(status, name) {
   if (status === "completed") return "✓ " + name;
   if (status === "in_progress") return "◐ " + name;
   return name;
+}
+function statusFromMap(map, houseId) {
+  const rec = map.get(houseId);
+  return rec ? rec.status : "not_started";
+}
+
+async function loadStatusMaps() {
+  const [nhoRows, checklistRows] = await Promise.all([
+    window.ClosingFormsBackend.getAllSubmissions("nho"),
+    window.ClosingFormsBackend.getAllSubmissions("closing_checklist")
+  ]);
+  nhoStatusMap = new Map(nhoRows.map(r => [r.house_id, r]));
+  checklistStatusMap = new Map(checklistRows.map(r => [r.house_id, r]));
 }
 
 // Populate Development / Model filter dropdowns from whatever's actually in the data.
@@ -44,6 +64,7 @@ function getFilters() {
     text: document.getElementById("search").value.trim().toLowerCase(),
     dev: document.getElementById("filterDev").value,
     model: document.getElementById("filterModel").value,
+    checklistStatus: document.getElementById("filterChecklistStatus").value,
     dateFrom: document.getElementById("filterDateFrom").value,
     dateTo: document.getElementById("filterDateTo").value,
     sortBy: document.getElementById("sortBy").value,
@@ -60,6 +81,7 @@ function applyFilters(list, f) {
     }
     if (f.dev && h.dev !== f.dev) return false;
     if (f.model && h.model !== f.model) return false;
+    if (f.checklistStatus && statusFromMap(checklistStatusMap, h.id) !== f.checklistStatus) return false;
     if (f.dateFrom && (!h.settDate || h.settDate < f.dateFrom)) return false;
     if (f.dateTo && (!h.settDate || h.settDate > f.dateTo)) return false;
     return true;
@@ -95,20 +117,51 @@ function groupByDate(list) {
   return order.map(key => ({ key, dateLabel: key === "unscheduled" ? "Unscheduled" : fmtDate(key), items: groups[key] }));
 }
 
+function daysBetween(a, b) {
+  return Math.round((b - a) / 86400000);
+}
+
+// How long the Closing Checklist has taken (or is taking) relative to the
+// house's closing date: "Nd since closing — pending" while unfinished, or
+// "Completed in Nd" once signed off. Empty string when there's nothing
+// meaningful to show yet (no closing date, or closing hasn't happened).
+function checklistTurnaroundHtml(h) {
+  if (!h.settDate) return "";
+  const sett = new Date(h.settDate + "T00:00:00");
+  const rec = checklistStatusMap.get(h.id);
+  const status = rec ? rec.status : "not_started";
+
+  if (status === "completed" && rec.completed_at) {
+    const days = daysBetween(sett, new Date(rec.completed_at));
+    const label = days <= 0 ? "Checklist completed by closing day" : `Checklist completed in ${days}d`;
+    return `<div class="turnaround"><span class="pill pill-done">${label}</span></div>`;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (sett > today) return "";
+
+  const days = daysBetween(sett, today);
+  const label = status === "in_progress" ? "checklist in progress" : "checklist not started";
+  const cls = days > 7 ? "pill-overdue" : "pill-progress";
+  return `<div class="turnaround"><span class="pill ${cls}">${days}d since closing — ${label}</span></div>`;
+}
+
 function houseRowHtml(h) {
   const devName = developmentNames[h.dev] || h.dev;
   return `
     <div class="house-row" data-house="${h.id}">
       <div class="addr">${h.address}</div>
       <div class="meta">${devName} · ${h.model}${h.elevCode ? " " + h.elevCode : ""} · ${h.buyer}${h.settDate ? " · " + fmtDate(h.settDate) : ""}</div>
+      ${checklistTurnaroundHtml(h)}
       <div class="forms-row">
-        <a href="nho-form.html?house=${encodeURIComponent(h.id)}" class="nho-link" data-house="${h.id}">New Home Orientation</a>
-        <a href="closing-checklist.html?house=${encodeURIComponent(h.id)}" class="checklist-link" data-house="${h.id}">Closing Checklist</a>
+        <a href="nho-form.html?house=${encodeURIComponent(h.id)}" class="nho-link ${statusClass(statusFromMap(nhoStatusMap, h.id))}">${statusLabel(statusFromMap(nhoStatusMap, h.id), "New Home Orientation")}</a>
+        <a href="closing-checklist.html?house=${encodeURIComponent(h.id)}" class="checklist-link ${statusClass(statusFromMap(checklistStatusMap, h.id))}">${statusLabel(statusFromMap(checklistStatusMap, h.id), "Closing Checklist")}</a>
       </div>
     </div>`;
 }
 
-async function render() {
+function render() {
   const f = getFilters();
   const listEl = document.getElementById("list");
   const emptyEl = document.getElementById("emptyState");
@@ -137,26 +190,15 @@ async function render() {
     });
   }
   listEl.innerHTML = html;
-
-  // Fill in live status pills (async, per house)
-  filtered.forEach(async h => {
-    const statuses = await window.ClosingFormsBackend.getHouseFormStatuses(h.id);
-    const nhoLink = listEl.querySelector(`.nho-link[data-house="${CSS.escape(h.id)}"]`);
-    const clLink = listEl.querySelector(`.checklist-link[data-house="${CSS.escape(h.id)}"]`);
-    if (nhoLink) {
-      nhoLink.textContent = statusLabel(statuses.nho, "New Home Orientation");
-      nhoLink.className = "nho-link " + statusClass(statuses.nho);
-    }
-    if (clLink) {
-      clLink.textContent = statusLabel(statuses.closing_checklist, "Closing Checklist");
-      clLink.className = "checklist-link " + statusClass(statuses.closing_checklist);
-    }
-  });
 }
 
-populateFilterOptions();
+async function init() {
+  populateFilterOptions();
+  await loadStatusMaps();
+  render();
+}
 
-["search", "filterDev", "filterModel", "filterDateFrom", "filterDateTo", "sortBy", "sortDir", "viewMode"]
+["search", "filterDev", "filterModel", "filterChecklistStatus", "filterDateFrom", "filterDateTo", "sortBy", "sortDir", "viewMode"]
   .forEach(id => document.getElementById(id).addEventListener("input", render));
 
 document.getElementById("filterToggle").addEventListener("click", () => {
@@ -171,6 +213,7 @@ document.getElementById("clearFiltersBtn").addEventListener("click", () => {
   document.getElementById("search").value = "";
   document.getElementById("filterDev").value = "";
   document.getElementById("filterModel").value = "";
+  document.getElementById("filterChecklistStatus").value = "";
   document.getElementById("filterDateFrom").value = "";
   document.getElementById("filterDateTo").value = "";
   document.getElementById("sortBy").value = "settDate";
@@ -179,4 +222,4 @@ document.getElementById("clearFiltersBtn").addEventListener("click", () => {
   render();
 });
 
-render();
+init();

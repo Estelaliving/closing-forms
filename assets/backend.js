@@ -181,11 +181,32 @@ async function getHouseFormStatuses(houseId) {
   return out;
 }
 
+// Bulk fetch: every submission of one form type across all houses, in a
+// single request — status + completed_at per house_id. Used by the
+// dashboard so filtering/sorting by form status doesn't require one
+// network round trip per house.
+async function getAllSubmissions(formType) {
+  const sb = getClient();
+  if (sb) {
+    const { data, error } = await sb
+      .from("form_submissions")
+      .select("house_id,status,completed_at,updated_at")
+      .eq("form_type", formType);
+    if (error) { console.error(error); return []; }
+    return data || [];
+  }
+  const all = localAll();
+  return Object.keys(all)
+    .filter(k => k.endsWith("::" + formType))
+    .map(k => all[k]);
+}
+
 window.ClosingFormsBackend = {
   isConfigured,
   getSubmission,
   saveSubmission,
   getHouseFormStatuses,
+  getAllSubmissions,
   logPrint,
   getActivityLog
 };
