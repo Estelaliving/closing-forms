@@ -46,36 +46,61 @@ def norm_address(address):
     return re.sub(r"[^a-z0-9]", "", address.lower())
 
 
+def code(value):
+    # Since Nov 2026 the report labels codes, e.g. "MO-Marion Oaks", "A2-";
+    # keep just the code before the first dash.
+    return clean(value).split("-", 1)[0].strip()
+
+
+# Field -> accepted report column names (older export name first).
+COLUMNS = {
+    "settDate": ["Sett. Date"],
+    "company": ["Comp."],
+    "dev": ["Dev."],
+    "houseNumber": ["House Number", "House"],
+    "model": ["Model"],
+    "elevCode": ["Elev. Code", "Elev."],
+    "address": ["Address"],
+    "buyer": ["Buyer", "Buyer name"],
+    "pm": ["PM"],
+}
+
+
 def read_csv(path):
     with open(path, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
-    required = ["Sett. Date", "Comp.", "Dev.", "House Number", "Model", "Elev. Code", "Address", "Buyer", "PM"]
-    missing = [c for c in required if c not in (rows[0].keys() if rows else [])]
-    if missing:
-        sys.exit(f"ERROR: {path} is missing columns {missing} — is this a Closing Pipeline_Table export?")
+    header = rows[0].keys() if rows else []
+    col = {}
+    for field, names in COLUMNS.items():
+        found = [n for n in names if n in header]
+        if not found:
+            sys.exit(f"ERROR: {path} has no {' / '.join(repr(n) for n in names)} column — "
+                     "is this a Closing Pipeline_Table export?")
+        col[field] = found[0]
     houses = []
     seen = set()
     for r in rows:
-        house_number = clean(r["House Number"])
+        r = {field: r[name] for field, name in col.items()}
+        house_number = clean(r["houseNumber"])
         if not house_number:
             continue
         # The report sometimes repeats a home (e.g. once per lender record);
         # the forms are keyed by house number, so keep the first row only.
         if house_number in seen:
-            print(f"  duplicate row in report, keeping first: {house_number} {clean(r['Address'])}")
+            print(f"  duplicate row in report, keeping first: {house_number} {clean(r['address'])}")
             continue
         seen.add(house_number)
         houses.append({
             "id": house_number,
-            "settDate": to_iso(r["Sett. Date"]),
-            "company": clean(r["Comp."]),
-            "dev": clean(r["Dev."]),
+            "settDate": to_iso(r["settDate"]),
+            "company": code(r["company"]),
+            "dev": code(r["dev"]),
             "houseNumber": house_number,
-            "model": clean(r["Model"]),
-            "elevCode": clean(r["Elev. Code"]),
-            "address": clean(r["Address"]),
-            "buyer": clean(r["Buyer"]),
-            "pm": clean(r["PM"]),
+            "model": code(r["model"]),
+            "elevCode": code(r["elevCode"]),
+            "address": clean(r["address"]),
+            "buyer": clean(r["buyer"]),
+            "pm": clean(r["pm"]),
         })
     # Newest closing first, same as the existing file.
     houses.sort(key=lambda h: h["settDate"], reverse=True)
