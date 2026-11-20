@@ -3,7 +3,7 @@
 The list of homes in the app lives in `assets/houses-data.js`. It is the
 **closing pipeline**: every house that is Sold or Settled in MarkSystems.
 
-Since November 2026 it is refreshed **automatically every morning** by a
+Since November 2026 it is refreshed **automatically every day at 10:00 AM** by a
 scheduled Claude task on Jacob's PC ("closing-forms-daily-refresh"), which reads
 Estela Data directly. You only need the steps below to run it by hand, or as a
 fallback when Estela Data is unavailable.
