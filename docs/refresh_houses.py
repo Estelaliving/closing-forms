@@ -1,18 +1,25 @@
 # -*- coding: utf-8 -*-
-# Rebuilds assets/houses-data.js from a "Closing Pipeline_Table" CSV export,
-# prints what changed (added / removed / updated homes), then stamps a new
-# cache version so everyone's browser picks up the new list.
+# Rebuilds assets/houses-data.js from the closing pipeline (every Sold or
+# Settled house), prints what changed (added / removed / updated homes), then
+# stamps a new cache version so everyone's browser picks up the new list.
+#
+# Two sources work:
+#   - a JSON file of Estela Data (Cube) houses_summary rows — the normal way
+#     since Nov 2026, see docs/REFRESH.md for the exact query;
+#   - a "Closing Pipeline_Table" CSV export from the Looker Studio report.
 #
 # Hand-added homes are kept: any entry whose id starts with TEST or MANUAL-
 # stays at the top of the list, unless its address now appears in the report
 # (then the real report row replaces it).
 #
 # Usage:
-#   python docs/refresh_houses.py                 # newest export in ~/Downloads
+#   python docs/refresh_houses.py path/to/cube-rows.json
 #   python docs/refresh_houses.py path/to/file.csv
-#   python docs/refresh_houses.py --dry-run       # show changes, write nothing
+#   python docs/refresh_houses.py                 # newest CSV export in ~/Downloads
+#   python docs/refresh_houses.py ... --dry-run   # show changes, write nothing
 import csv
 import glob
+import json
 import os
 import re
 import subprocess
@@ -35,11 +42,13 @@ def clean(value):
     return "" if value == "-" else value
 
 
-def to_iso(us_date):
-    us_date = clean(us_date)
-    if not us_date:
+def to_iso(date):
+    date = clean(date)
+    if not date:
         return ""
-    return datetime.strptime(us_date, "%m/%d/%Y").strftime("%Y-%m-%d")
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", date[:10]):  # Cube: YYYY-MM-DD
+        return date[:10]
+    return datetime.strptime(date, "%m/%d/%Y").strftime("%Y-%m-%d")
 
 
 def norm_address(address):
@@ -66,6 +75,40 @@ COLUMNS = {
 }
 
 
+# Field -> Estela Data houses_summary dimension. The pipeline's closing date
+# is expected_settlement_date (the settlement date once settled).
+CUBE_FIELDS = {
+    "settDate": "expected_settlement_date",
+    "company": "company_code",
+    "dev": "development",
+    "houseNumber": "house_number",
+    "model": "model",
+    "elevCode": "elevation",
+    "address": "address",
+    "buyer": "buyer_name",
+    "pm": "superuser_id",
+}
+
+
+def read_cube_json(path):
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    # Accept the query result as Claude saves it: [{"type": "text", "text": "<json>"}].
+    if isinstance(data, list) and data and isinstance(data[0], dict) and data[0].get("type") == "text":
+        data = json.loads("".join(part.get("text", "") for part in data))
+    if isinstance(data, dict) and data.get("truncated"):
+        sys.exit(f"ERROR: {path} is a truncated query result — raise the limit and query again.")
+    rows = data["rows"] if isinstance(data, dict) else data
+    if not rows:
+        sys.exit(f"ERROR: {path} has no rows.")
+    missing = [d for d in CUBE_FIELDS.values() if d not in rows[0]]
+    if missing:
+        sys.exit(f"ERROR: {path} rows are missing {missing} — rerun the houses_summary query in docs/REFRESH.md.")
+    if "sale_status" in rows[0]:
+        rows = [r for r in rows if r["sale_status"] in ("Sold", "Settled")]
+    return to_houses([{field: r.get(dim) or "" for field, dim in CUBE_FIELDS.items()} for r in rows])
+
+
 def read_csv(path):
     with open(path, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
@@ -77,10 +120,13 @@ def read_csv(path):
             sys.exit(f"ERROR: {path} has no {' / '.join(repr(n) for n in names)} column — "
                      "is this a Closing Pipeline_Table export?")
         col[field] = found[0]
+    return to_houses([{field: r[name] for field, name in col.items()} for r in rows])
+
+
+def to_houses(rows):
     houses = []
     seen = set()
     for r in rows:
-        r = {field: r[name] for field, name in col.items()}
         house_number = clean(r["houseNumber"])
         if not house_number:
             continue
@@ -142,7 +188,7 @@ def main():
     print(f"Report: {csv_path}")
     print(f"  exported {datetime.fromtimestamp(os.path.getmtime(csv_path)):%Y-%m-%d %H:%M}")
 
-    report = read_csv(csv_path)
+    report = read_cube_json(csv_path) if csv_path.lower().endswith(".json") else read_csv(csv_path)
     text, existing = read_existing()
 
     report_addresses = {norm_address(h["address"]) for h in report}
@@ -157,6 +203,12 @@ def main():
 
     old = {h["id"]: h for h in existing if not h["id"].startswith(("TEST", "MANUAL-"))}
     new = {h["id"]: h for h in report}
+    # Estela Data returns no elevation for some older houses whose elevation
+    # has no master row (the Looker report showed just the code, e.g. "A2").
+    # Keep the code we already have rather than blanking it.
+    for i in new.keys() & old.keys():
+        if not new[i]["elevCode"] and old[i].get("elevCode"):
+            new[i]["elevCode"] = old[i]["elevCode"]
     added = [new[i] for i in new if i not in old]
     removed = [old[i] for i in old if i not in new]
     changed = []
