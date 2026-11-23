@@ -25,6 +25,7 @@
     { id: "00200252", settDate: "2026-12-28", company: "009", dev: "MO", houseNumber: "00200252", model: "HX2", elevCode: "A2", address: "318 Marion Oaks Golf Rd", buyer: "Funes, Salvador", pm: "MBEDAW" },
     { id: "00300245", settDate: "2026-12-28", company: "002", dev: "OW", houseNumber: "00300245", model: "EX3", elevCode: "A2", address: "10866 SW 41st Ave", buyer: "Bengochea, Carola", pm: "MBEDAW" },
     { id: "00300251", settDate: "2026-12-28", company: "001", dev: "OW", houseNumber: "00300251", model: "HX3", elevCode: "A2", address: "4980 SW 106th St", buyer: "Fernandez Padial, Stephanie", pm: "JBEDAW" },
+    { id: "00100111", settDate: "2026-12-21", company: "100", dev: "SR", houseNumber: "00100111", model: "MO5", elevCode: "TRA", address: "4441 NW 37TH STREET  RD", buyer: "Teran, Angel", pm: "JGWINN" },
     { id: "00300236", settDate: "2026-12-18", company: "009", dev: "OW", houseNumber: "00300236", model: "HX3", elevCode: "A2", address: "4860 SW 110th St", buyer: "Dorsey, Michael", pm: "MBEDAW" },
     { id: "00200195", settDate: "2026-12-15", company: "004", dev: "MO", houseNumber: "00200195", model: "AND", elevCode: "A2", address: "2910 SW 165 Street Rd", buyer: "Vargas Laverde, Juan David", pm: "MBEDAW" },
     { id: "00400216", settDate: "2026-12-10", company: "009", dev: "PC", houseNumber: "00400216", model: "HX2", elevCode: "A2", address: "67 President Ln", buyer: "Lawrence, Judith", pm: "BATCHINSON" },
