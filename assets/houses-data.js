@@ -16,7 +16,6 @@
     { id: "00400253", settDate: "2027-01-28", company: "004", dev: "PC", houseNumber: "00400253", model: "EXX", elevCode: "A2", address: "6 Uturn Ct", buyer: "CATALANO, LISA", pm: "BATCHINSON" },
     { id: "00400268", settDate: "2027-01-28", company: "001", dev: "PC", houseNumber: "00400268", model: "BX2", elevCode: "A2", address: "30 Burning Ember Ln", buyer: "Espinoza, Jessica", pm: "JFRANTZ" },
     { id: "00600461", settDate: "2027-01-28", company: "001", dev: "SB", houseNumber: "00600461", model: "M43", elevCode: "FAR", address: "104 Springwood Dr", buyer: "Stroup, Jamie", pm: "JFRANTZ" },
-    { id: "00200269", settDate: "2027-01-21", company: "009", dev: "MO", houseNumber: "00200269", model: "HX2", elevCode: "A2", address: "16674 SW 30th Terrace Rd", buyer: "Soto Torres, Jorge O.", pm: "MBEDAW" },
     { id: "00300254", settDate: "2027-01-15", company: "001", dev: "OW", houseNumber: "00300254", model: "HX3", elevCode: "A2", address: "3820 SW 113th PL", buyer: "Rojas, Liliana", pm: "MBEDAW" },
     { id: "00400235", settDate: "2027-01-08", company: "003", dev: "PC", houseNumber: "00400235", model: "BX2", elevCode: "A2", address: "91 Ferndale Ln", buyer: "Mendonca, Luis", pm: "BATCHINSON" },
     { id: "00100106", settDate: "2026-12-29", company: "100", dev: "SR", houseNumber: "00100106", model: "MO4", elevCode: "MOD", address: "4481 NW 37TH STREET  RD", buyer: "Garcia, Allan", pm: "JBEDAW" },
